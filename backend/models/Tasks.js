@@ -3,10 +3,10 @@ const mongoose = require('mongoose');
 const TaskSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: { type: String },
-  dueDate: { type: Date, required: true },
-  priority: { type: String, enum: ['High', 'Medium', 'Low'], required: true },
+  dueDate: { type: Date,  },
+  priority: { type: String, enum: ['High', 'Medium', 'Low'], default: 'Medium' },
   category: { type: String},
-  status: { type: String, enum: ['Pending', 'Completed'], default: 'Pending' },
+  status: { type: String, enum: ['Pending', 'Progress', 'Completed'], default: 'Pending' },
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
 }, { timestamps: true });
 

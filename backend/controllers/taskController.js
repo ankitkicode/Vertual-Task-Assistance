@@ -36,7 +36,7 @@ const { convertIndianToUTC } = require('../utils/DateFun');
   exports.updateTask = async (req, res) => {
     try {
       const { id } = req.params;
-      const { title, description, dueDate, priority, category } = req.body;
+      const { title, description, dueDate, priority, category , status } = req.body;
       
       const task = await Task.findOneAndUpdate(
         { _id: id, user: req.user._id },
@@ -46,6 +46,7 @@ const { convertIndianToUTC } = require('../utils/DateFun');
           dueDate : convertIndianToUTC(dueDate),
           priority,
           category,
+          status
         },
         { new: true }
       );
