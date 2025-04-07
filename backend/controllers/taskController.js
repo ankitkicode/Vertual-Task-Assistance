@@ -147,8 +147,6 @@ const { convertIndianToUTC } = require('../utils/DateFun');
       return serverError(res, "Failed to fetch past weekly report");
     }
   };
-  
-
   exports.getPastMonthReport = async (req, res) => {
     try {
       const userId = req.user._id;

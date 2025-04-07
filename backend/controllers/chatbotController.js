@@ -68,6 +68,10 @@ exports.markTaskAction = async (req, res) => {
             task.status = 'Completed';
             await task.save();
             return success(res, "Task marked as completed", { task });
+        } else if  (action === 'progress'){
+            task.status = 'Progress';
+            await task.save();
+            return success(res, "Task marked as in progress", { task });
         } else if (action === 'skip') {
             // Skip action -> find next pending task
             const today = new Date();
