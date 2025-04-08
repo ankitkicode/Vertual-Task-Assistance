@@ -54,7 +54,7 @@ exports.getTodayTasks = async (req, res) => {
 
 exports.markTaskAction = async (req, res) => {
     try {
-        const { taskId, action } = req.body; // frontend se ye dono aayenge
+        const { taskId, action } = req.body; 
         const userId = req.user._id;
 
         // Task find karo

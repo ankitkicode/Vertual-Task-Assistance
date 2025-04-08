@@ -11,7 +11,7 @@ router.get('/', isAuth, taskController.getMyTasks);
 
 
 // Get tasks by date, today-tasks, yesterday-tasks, weekly-report, monthly-report
-router.get('/dayBytask/:date', isAuth, taskController.getTaskByDate);
+router.get('/today-tasks/:date', isAuth, taskController.getTaskByDate);
 router.get('/today-tasks', isAuth, taskController.getTaskByDate);
 router.get('/yesterday-task', isAuth, taskController.getYesterdayTask);
 router.get('/weekly-report', isAuth, taskController.getPastWeekReport);

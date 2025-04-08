@@ -27,6 +27,7 @@ dbConnection()
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/tasks', require('./routes/tasksRoutes'));
 app.use('/api/chatbot', require('./routes/chatbotRoutes'));
+app.use('/api/user', require('./routes/userRoutes'));
 // Test Route
 app.get('/', (req, res) => {
     res.send('API Running...');

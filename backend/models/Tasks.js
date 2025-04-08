@@ -9,5 +9,4 @@ const TaskSchema = new mongoose.Schema({
   status: { type: String, enum: ['Pending', 'Progress', 'Completed'], default: 'Pending' },
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
 }, { timestamps: true });
-
 module.exports = mongoose.model('Task', TaskSchema);

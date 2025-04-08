@@ -6,7 +6,7 @@ const { convertIndianToUTC } = require('../utils/DateFun');
   exports.createTask = async (req, res) => {
     try {
       const { title, description, dueDate, priority, category } = req.body;
-      // console.log(req.body);
+      console.log(req.body);
 
       const task = await Task.create({
         title,
@@ -74,17 +74,18 @@ const { convertIndianToUTC } = require('../utils/DateFun');
     try {
       let date = req.params.date || req.query.date;
       const userId = req.user._id;
-  
+      console.log(date);
       let dueDate, endOfDay;
   
       if (!date) {
         // Agar date nahi mili, to aaj ka date lo
-        const today = new Date();
-        today.setUTCHours(0, 0, 0, 0);
-        dueDate = today;
-  
-        endOfDay = new Date(today);
-        endOfDay.setUTCHours(23, 59, 59, 999);
+        const indianTimeNow = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+    const today = new Date(indianTimeNow);
+    today.setHours(0, 0, 0, 0);  // local set karna hai
+    dueDate = today;
+
+    endOfDay = new Date(today);
+    endOfDay.setHours(23, 59, 59, 999);
       } else {
         dueDate = convertIndianToUTC(date);
         endOfDay = new Date(dueDate);
@@ -96,7 +97,7 @@ const { convertIndianToUTC } = require('../utils/DateFun');
         dueDate: { $gte: dueDate, $lte: endOfDay }
       });
   
-      return success(res, "Tasks fetched successfully", tasks);
+      return success(res, "Tasks fetched successfully ", tasks);
   
     } catch (err) {
       console.error(err);
@@ -109,66 +110,104 @@ const { convertIndianToUTC } = require('../utils/DateFun');
     try {
       const userId = req.user._id;
   
-      const today = new Date();
-      today.setUTCHours(0, 0, 0, 0); 
-      const last7Days = new Date(today);
-      last7Days.setUTCDate(today.getUTCDate() - 7); // 6 din pehle + aaj
+      const now = new Date();
+      const indiaOffset = 5.5 * 60 * 60 * 1000; // 5 hours 30 minutes in ms
+  
+      const indiaNow = new Date(now.getTime() + indiaOffset);
+  
+      // Today's start at 00:00 IST
+      const todayIndia = new Date(indiaNow);
+      todayIndia.setHours(0, 0, 0, 0);
+  
+      // 7 days back from today in IST
+      const last7DaysIndia = new Date(todayIndia);
+      last7DaysIndia.setDate(todayIndia.getDate() - 6); // last 6 days + today
+  
+      // Convert both to UTC
+      const last7DaysStartUTC = new Date(last7DaysIndia.getTime() - indiaOffset);
+      const todayStartUTC = new Date(todayIndia.getTime() - indiaOffset);
   
       const tasks = await Task.find({
         user: userId,
-        dueDate: { $gte: last7Days, $lt: today }
+        dueDate: { $gte: last7DaysStartUTC, $lt: todayStartUTC }
       }).sort({ dueDate: -1 }); 
-  
-      return success(res, "Past 7 days report fetched successfully", tasks);
+      return success(res, "Past 7 days (IST) report fetched successfully", tasks);
   
     } catch (err) {
       console.error(err);
       return serverError(res, "Failed to fetch past weekly report");
     }
   };
+  
   exports.getYesterdayTask = async (req, res) => {
     try {
       const userId = req.user._id;
   
-      const today = new Date();
-      today.setUTCHours(0, 0, 0, 0); 
-      const last7Days = new Date(today);
-      last7Days.setUTCDate(today.getUTCDate() - 1); // 1 din pehle + aaj
+      // Get current time in IST
+      const now = new Date();
+      const indiaOffset = 5.5 * 60 * 60 * 1000; // 5 hours 30 minutes in ms
+  
+      const indiaNow = new Date(now.getTime() + indiaOffset);
+  
+      // Set today's date at 00:00 IST
+      const todayIndia = new Date(indiaNow);
+      todayIndia.setHours(0, 0, 0, 0);
+  
+      // Calculate yesterday's start and today's start in UTC
+      const yesterdayIndia = new Date(todayIndia);
+      yesterdayIndia.setDate(todayIndia.getDate() - 1);
+  
+      const yesterdayStartUTC = new Date(yesterdayIndia.getTime() - indiaOffset);
+      const todayStartUTC = new Date(todayIndia.getTime() - indiaOffset);
   
       const tasks = await Task.find({
         user: userId,
-        dueDate: { $gte: last7Days, $lt: today }
+        dueDate: { $gte: yesterdayStartUTC, $lt: todayStartUTC }
       }).sort({ dueDate: -1 }); // Recent tasks first
   
-      return success(res, "Past 1 days report fetched successfully", tasks);
+      return success(res, "Yesterday's tasks (IST) fetched successfully", tasks);
   
     } catch (err) {
       console.error(err);
-      return serverError(res, "Failed to fetch past weekly report");
+      return serverError(res, "Failed to fetch yesterday's tasks");
     }
   };
+  
+  
   exports.getPastMonthReport = async (req, res) => {
     try {
       const userId = req.user._id;
   
-      const today = new Date();
-      today.setUTCHours(0, 0, 0, 0);
+      const now = new Date();
+      const indiaOffset = 5.5 * 60 * 60 * 1000; // 5 hours 30 minutes in ms
   
-      const last30Days = new Date(today);
-      last30Days.setUTCDate(today.getUTCDate() - 29); // 29 days before + today
+      const indiaNow = new Date(now.getTime() + indiaOffset);
+  
+      // Today's start at 00:00 IST
+      const todayIndia = new Date(indiaNow);
+      todayIndia.setHours(0, 0, 0, 0);
+  
+      // 30 days back from today in IST
+      const last30DaysIndia = new Date(todayIndia);
+      last30DaysIndia.setDate(todayIndia.getDate() - 29); // 29 din pehle + aaj
+  
+      // Convert both to UTC
+      const last30DaysStartUTC = new Date(last30DaysIndia.getTime() - indiaOffset);
+      const todayStartUTC = new Date(todayIndia.getTime() - indiaOffset);
   
       const tasks = await Task.find({
         user: userId,
-        dueDate: { $gte: last30Days, $lt: today }
+        dueDate: { $gte: last30DaysStartUTC, $lt: todayStartUTC }
       }).sort({ dueDate: -1 }); // Latest pehle
   
       console.log(tasks.length);
-      return success(res, "Past 30 days report fetched successfully", tasks);
+      return success(res, "Past 30 days (IST) report fetched successfully", tasks);
   
     } catch (err) {
       console.error(err);
       return serverError(res, "Failed to fetch past monthly report");
     }
   };
+  
   
 
