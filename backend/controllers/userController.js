@@ -82,3 +82,33 @@ exports.getDashboard = async (req, res) => {
         });
     }
 }
+
+exports.updateEmailNotification = async (req, res) => {
+    // console.log(req.body);
+    try {
+        const user = await User.findOne(req.user._id).select('-password -otp -otpExpires -__v');
+        if (!user) {
+            return res.status(STATUS_CODES.NOT_FOUND).json({
+                message: MESSAGES.ERROR.DATA_NOT_FOUND,
+                success: MESSAGES.SUCCESS.FALSE
+            });
+        }
+        user.onEmailNotification = req.body.onEmailNotification;
+        await user.save();
+
+
+
+        res.status(STATUS_CODES.SUCCESS).json({
+            user,
+            message: MESSAGES.SUCCESS.PROFILE_SUCCESS,
+            success: MESSAGES.SUCCESS.TRUE
+        });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(STATUS_CODES.SERVER_ERROR).json({
+            message: MESSAGES.ERROR.INTERNAL_SERVER_ERROR,
+            success: false
+        });
+    }
+}

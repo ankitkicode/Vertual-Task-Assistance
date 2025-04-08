@@ -50,6 +50,10 @@ const UserSchema = new mongoose.Schema({
         enum: ['admin', 'user'],
         default: 'user'
     },
+    onEmailNotification: {
+        type: Boolean,
+        default: false
+    },
     profilePicture: {
         type: String,
         default: function () {
