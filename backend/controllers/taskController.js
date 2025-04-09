@@ -95,7 +95,7 @@ const { convertIndianToUTC } = require('../utils/DateFun');
       const tasks = await Task.find({
         user: userId,
         dueDate: { $gte: dueDate,  }
-      });
+      }).sort({ dueDate: 1 });
   
       return success(res, "Tasks fetched successfully ", tasks);
   
